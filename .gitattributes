@@ -1,0 +1,4 @@
+/mvnw text eol=lf
+# Windows CMD requires CRLF; LF causes each @REM line to be executed as a command.
+mvnw.cmd text eol=crlf
+*.cmd text eol=crlf

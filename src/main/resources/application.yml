@@ -1,0 +1,30 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: basePlatform
+  profiles:
+    active: sqlite
+  thymeleaf:
+    cache: false
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
+mybatis:
+  mapper-locations: classpath*:mapper/*.xml
+  type-aliases-package: com.md.basePlatform.domain
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    com.md.basePlatform: info
+
+ai:
+  provider:
+    url: ${AI_PROVIDER_URL:https://api.openai.com/v1/chat/completions}
+    model: ${AI_PROVIDER_MODEL:gpt-4o-mini}
+    api-key: ${AI_PROVIDER_API_KEY:}

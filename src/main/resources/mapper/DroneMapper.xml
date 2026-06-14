@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+  MyBatis Mapper XML - 无人机数据访问映射
+
+  功能说明：
+  - 定义无人机表(t_uav)的CRUD SQL语句
+  - 配置实体属性与数据库字段的映射关系(resultMap)
+
+  命名空间：
+  - 指向 DroneRepositoryImpl 接口
+-->
+<mapper namespace="com.md.basePlatform.repository.impl.DroneRepositoryImpl">
+
+    <!--
+      结果映射：定义数据库字段与实体属性的对应关系
+      - column: 数据库列名
+      - property: Java实体属性名
+      - type: 指定映射目标：实体类全限定类名，查询结果最终封装到 Drone 对象中。
+      id="droneMap": 唯一标识，后续 <select> 等标签通过 resultMap="droneMap" 引用这套映射规则。
+    -->
+    <resultMap id="droneMap" type="com.md.basePlatform.domain.Drone">
+        <id column="id" property="id"/>
+        <result column="uav_code" property="uavCode"/>
+        <result column="model" property="model"/>
+        <result column="manufacturer" property="manufacturer"/>
+        <result column="max_payload" property="maxPayload"/>
+        <result column="max_altitude" property="maxAltitude"/>
+        <result column="max_flight_time" property="maxFlightTime"/>
+        <result column="max_speed" property="maxSpeed"/>
+        <result column="wingspan" property="wingspan"/>
+        <result column="weight" property="weight"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="ai_generated" property="aiGenerated"/>
+        <result column="deleted" property="deleted"/>
+    </resultMap>
+
+    <!--
+      插入无人机
+      - useGeneratedKeys: 使用自增主键
+      - keyProperty: 主键回填到实体属性
+    -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_uav(uav_code, model, manufacturer, max_payload, max_altitude, max_flight_time, max_speed, wingspan, weight, status, remark, ai_generated, deleted)
+        VALUES(#{uavCode}, #{model}, #{manufacturer}, #{maxPayload}, #{maxAltitude}, #{maxFlightTime}, #{maxSpeed}, #{wingspan}, #{weight}, #{status}, #{remark}, #{aiGenerated}, #{deleted})
+    </insert>
+
+    <!--
+      更新无人机信息
+      - 根据ID更新除deleted外的所有字段
+    -->
+    <update id="update">
+        UPDATE t_uav SET uav_code=#{uavCode}, model=#{model}, manufacturer=#{manufacturer}, max_payload=#{maxPayload}, max_altitude=#{maxAltitude},
+        max_flight_time=#{maxFlightTime}, max_speed=#{maxSpeed}, wingspan=#{wingspan}, weight=#{weight}, status=#{status},
+        remark=#{remark}, ai_generated=#{aiGenerated}
+        WHERE id=#{id}
+    </update>
+
+    <!--
+      删除无人机（逻辑删除）
+      - 将deleted字段设置为1，而非物理删除
+    -->
+    <delete id="deleteById">
+        UPDATE t_uav SET deleted=1 WHERE id=#{id}
+    </delete>
+
+    <!--
+      根据ID查询无人机
+      - 只查询未删除的记录
+    -->
+    <select id="findById" resultMap="droneMap">
+        SELECT * FROM t_uav WHERE id=#{id} AND deleted=0
+    </select>
+
+    <!--
+      查询无人机列表
+      - 支持关键词搜索（编号、型号、厂商、ID）
+      - 支持状态筛选
+      - 按ID倒序排列
+    -->
+    <select id="findAll" resultMap="droneMap">
+        SELECT * FROM t_uav
+        <where>
+            deleted = 0
+            <if test="keyword != null and keyword != ''">
+                AND (instr(uav_code, #{keyword}) > 0
+                OR instr(model, #{keyword}) > 0
+                OR instr(manufacturer, #{keyword}) > 0
+                OR instr(id || '', #{keyword}) > 0)
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <!--
+      统计编号冲突数量（用于新增时验证唯一性）
+      - 只统计未删除的记录
+    -->
+    <select id="countByUavCode" resultType="int">
+        SELECT COUNT(*) FROM t_uav WHERE uav_code = #{uavCode} AND deleted = 0
+    </select>
+
+    <!--
+      统计编号冲突数量（用于更新时验证唯一性）
+      - 排除当前ID的记录
+      - 只统计未删除的记录
+    -->
+    <select id="countByUavCodeExcludeId" resultType="int">
+        SELECT COUNT(*) FROM t_uav WHERE uav_code = #{uavCode} AND deleted = 0 AND id != #{id}
+    </select>
+
+    <!--
+      统计所有未删除的无人机数量
+    -->
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM t_uav WHERE deleted = 0
+    </select>
+
+    <!--
+      按状态统计无人机数量
+      - 1: 启用
+      - 0: 停用
+    -->
+    <select id="countByStatus" resultType="long">
+        SELECT COUNT(*) FROM t_uav WHERE status = #{status} AND deleted = 0
+    </select>
+</mapper>

@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": "powershell -ExecutionPolicy Bypass -File .trae/hooks/harness-reminder.ps1"
+      }
+    ]
+  }
+}

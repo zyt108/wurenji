@@ -1,0 +1,25 @@
+/**
+ * 全局基础样式
+ *
+ * 功能说明：
+ * - 引入 Bootstrap 与 Bootstrap Icons
+ * - 统一盒模型与页面字体
+ */
+
+/* 第三方 UI 库 */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+/* 全局盒模型：padding/border 计入宽高 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 页面基础排版 */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}

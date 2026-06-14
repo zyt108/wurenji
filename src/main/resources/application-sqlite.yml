@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:./data/baseplatform.db
+    username:
+    password:
+    druid:
+      driver-class-name: org.sqlite.JDBC
+      url: jdbc:sqlite:./data/baseplatform.db
+      initial-size: 1
+      min-idle: 1
+      max-active: 5
+      validation-query: select 1
+    initialization-mode: always
+    schema: classpath:db/sqlite/schema.sql
